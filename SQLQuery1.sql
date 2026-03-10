@@ -1,10 +1,10 @@
 create database TARge25
 
 --db valimine
-use TARge25
+use Targe25
 
 --db kustutamine
-drop database TARge25
+drop database Targe25
 
 --tabeli tegemine
 create table Gender
@@ -137,3 +137,98 @@ select * from Person where (City ='Gotham' or City = 'New York'
 select * from Person where (City ='Gotham' or City = 'New York')
 and age > 29
 
+-- kuvab tähestikulises järjekorras inimesi ja võtab aluseks nime 
+select * from Person order by Name
+-- kuvab vastupidises järjestuses nimed 
+select * from Person order by Name desc
+
+--võtab kolm esimest rida person tabelist
+select top 3 * from Person
+-- kolm esimest, aga tabeli järjestus on Age ja siis Name
+select * from Person 
+select top 3 Age, Name from Person order by CAST(Age as int)
+
+--näita esimesed 50% tabelist 
+select top 50 percent * from Person
+
+--kõikide isikute koondvanus 
+select SUM(cast(Age as int)) from  Person 
+
+--näitab nooremat isikut 
+select min(cast(Age as int)) from  Person 
+
+-- muudame Age veeru int andmetüübideks
+alter table person
+alter column age int 
+
+--näeme konkreetsetes linnades olevate isikute koondvanust
+select SUM(Age) from Person where city = 'New York'
+select city, SUM(age) as TotalAge from Person group by city 
+
+--Kuvab esimeses reas välja toodud järjestus ja kuvab Age TotalAge-ks
+--Järjestab City-s olevate nimede järgi ja siis GenderId järgi
+select City, Genderid, SUM(Age) as TotalAge from Person
+group by City, GenderId order by City
+
+--näitab, et mitu rida on selles tabelis 
+select count(*) from Person
+
+--näitab tulemust, etmitu inimest on GenderId väärtusega 2 konkreetses linnas
+-- arvutab vanuse kokku konkreetses linnass
+select city, GenderId, SUM(age) as totalage, COUNT(id) as [Total Person(s)]
+from Person
+where GenderId = '2'
+group by GenderId, city
+
+--näitab ära inimeste koondvanuse´, mis on üle 41 a ja
+--kui palju neid igas linnas elab
+--eristab soo järgi 
+select city, GenderId, SUM(age) as totalage, COUNT(id) as [Total Person(s)]
+from Person
+group by GenderId, city having SUM(age) > 41
+
+--loome tabelid emloyees ja department 
+
+
+
+CREATE TABLE employees
+(
+    Id INT NOT NULL PRIMARY KEY,
+    Name NVARCHAR(50),
+    Gender NVARCHAR(50),
+    Salary INT,
+    DepartmentId INT NULL
+);
+
+--
+INSERT INTO employees (Id, Name, gender, salary, DepartmentID)
+VALUES
+(1, 'Tom', 'Male', 4000, 1),
+(2, 'Pam', 'Female', 3000, 3),
+(3, 'John', 'Male', 3500, 1),
+(4, 'Sam', 'Male', 4500, 2),
+(5, 'Todd', 'Male', 2800, 2),
+(6, 'Ben', 'Male', 7000, 1),
+(7, 'Sara', 'Female', 4800, 3),
+(8, 'Valarie', 'Female', 5500, 1),
+(9, 'James', 'Male', 6500, NULL),
+(10, 'Russell', 'Male', 8800, NULL),
+
+
+INSERT INTO department (id, departmentname, location, departmenthead)
+VALUES
+(1, 'IT', 'London', 'Rick'),
+(2, 'Payroll', 'Delhi', 'Ron'),
+(3, 'HR', 'New York', 'Christie'),
+(4, 'Other Department', 'Sydney', 'Cinderella');
+
+--
+select name, Gender, Salary, departmentname
+from employees
+left join department
+on employees.departmentId = department.Id
+
+--arvutame kõikide palgad kokku 
+select sum(cast(salary as int)) from employees
+--min palga saaja
+select min(cast(salary as int)) from employees
