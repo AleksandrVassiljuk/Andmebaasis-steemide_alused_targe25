@@ -1,10 +1,10 @@
 create database TARge25
 
 --db valimine
-use Targe25
+use TARge25DB
 
 --db kustutamine
-drop database Targe25
+drop database TARge25DB
 
 --tabeli tegemine
 create table Gender
@@ -78,157 +78,355 @@ add Age nvarchar(10)
 alter table Person
 add constraint CK_Person_Age check (Age > 0 and Age < 155)
 
---kui sa tead veergude järjekorda peast, 
---siis ei pea neid sisestama 
+--kui sa tead veergude järjekorda peast
+--siis ei pea neid sisestama
 insert into Person
 values (10, 'Green Arrow', 'g@g.com', 2, 154)
 
---constrainti kustutamine 
+--constrainti kustutamine
 alter table Person
 drop constraint CK_Person_Age
 
-alter table Person 
+alter table Person
 add constraint CK_Person_Age check (Age > 0 and Age < 130)
 
---kustutame rea 
+--kustutame rea
 delete from Person where Id = 10
--- kuidas uuendada andmeid koodiga 
--- Id 3 uus vanus on 50 
-update Person 
+
+--kuidas uuendada andmeid koodiga
+--Id 3 uus vanus on 50
+update Person
 set Age = 50
-where Id = 3 
+where Id = 3
 
--- lisame Person Tabelisse veeru City ja nvarchar 50 
+--lisame Person tabelisse veeru City ja nvarchar 50
 alter table Person
-add city nvarchar(50)
+add City nvarchar(50)
 
---Kõik, kes elavad Gothami linnas 
+--kõik kes elavad Gothami linnas
 select * from Person where City = 'Gotham'
---kõik, kes ei ela Gothamis 
-select * from Person where City <> 'Gotham'
+
+--kõik kes ei ela Gothamis
 select * from Person where City != 'Gotham'
+select * from Person where City <> 'Gotham'
 select * from Person where not City = 'Gotham'
 
---näitab teatud vanusega inimesi 
---35, 42, 23 
-select * from Person where Age = 35 or Age =  42 or  Age = 23 
+--näitab teatud vanusega inimesi
+--35, 42, 23
+select * from Person where Age = 35 or Age = 42 or Age = 23
 select * from Person where Age in (35, 42, 23)
 
-
 --näitab teatud vanusevahemikus olevaid isikuid 22 kuni 39
-select * from Person where Age between 22 and 39 
+select * from Person where Age between 22 and 39
 
---wildcardi kasutamine 
---näitab kõik g-tähega algavad linnad 
-select * from Person where City like '[g]%' ;
---email, kus on @ märk sees 
+--wildcardi kasutamine
+--näitab kõik g-tähega algavad linnad
+select * from Person where City like 'g%'
+
+--email, kus on @ märk sees
 select * from Person where Email like '%@%'
 
--- näitab, kellel on emailis ees ja peale @-märki ainult üks täht ja omakorda  .com 
-select * from Person where Email like '_@_%'
+--näitab, kellel on emailis ees ja peale @-märki ainult üks täht ja omakorda .com
+select * from Person where Email like '_@_.com'
 
---kõik, kellel on nimes esimene täht W, A, S
-select* from Person where Name like '[^was]%'
-select* from Person where Name like '[was]%' 
---kes elavad Gothamis ja New Yorkis 
-select * from Person where (City ='Gotham' or City = 'New York'
+--kõik, kellel on nimes esimene täht w, a, s
+--katusega välistab
+select * from Person where Name like '[^was]%'
+select * from Person where Name like '[was]%'
 
-----kes elavad Gothamis ja New Yorkis  ja on vañemad, kui 29
-select * from Person where (City ='Gotham' or City = 'New York')
-and age > 29
+--kes elavad Gothamis ja New Yorkis
+select * from Person where City = 'Gotham' or City = 'New York'
 
--- kuvab tähestikulises järjekorras inimesi ja võtab aluseks nime 
+--kes elavad Gothamis ja New Yorkis ja on vanemad, kui 29
+select * from Person where (City = 'Gotham' or City = 'New York') and Age > 29
+
+--kuvab tähetikulises järjekorras inimesi ja võtab aluseks nime
 select * from Person order by Name
--- kuvab vastupidises järjestuses nimed 
-select * from Person order by Name desc
+
+--kuvab vastupidises järjestuses nimed
+select * from Person order by  Name DESC
 
 --võtab kolm esimest rida person tabelist
 select top 3 * from Person
--- kolm esimest, aga tabeli järjestus on Age ja siis Name
-select * from Person 
-select top 3 Age, Name from Person order by CAST(Age as int)
 
---näita esimesed 50% tabelist 
+--kolm esimest aga tabeli järjestus on Age ja siis name
+select top 3 Age, Name from Person order by cast(Age as int)
+
+--näita esimesed 50% tabelist
 select top 50 percent * from Person
 
---kõikide isikute koondvanus 
-select SUM(cast(Age as int)) from  Person 
+--kõikide isikute koondvanus
+select sum(cast(Age as int)) from Person
 
---näitab nooremat isikut 
-select min(cast(Age as int)) from  Person 
+--näitab kõige nooremat isikut
+select min(cast(Age as int)) from Person
 
--- muudame Age veeru int andmetüübideks
-alter table person
-alter column age int 
+--näitab kõige vanemat isikut
+select max(cast(Age as int)) from Person
+
+--muudame Age veeru int andmetüübiks
+alter table Person
+alter column Age int;
 
 --näeme konkreetsetes linnades olevate isikute koondvanust
-select SUM(Age) from Person where city = 'New York'
-select city, SUM(age) as TotalAge from Person group by city 
+select sum(Age) from Person where city = 'New York'
+select City, sum(Age) as TotalAge from Person group by City
 
---Kuvab esimeses reas välja toodud järjestus ja kuvab Age TotalAge-ks
---Järjestab City-s olevate nimede järgi ja siis GenderId järgi
-select City, Genderid, SUM(Age) as TotalAge from Person
+--kuvab esimeses reas väljatoodud järjestuses ja kuvab Age TotalAge-ks
+--järjestab City-s olevate nimede järgi ja siis GenderId järgi
+select City, GenderId, sum(Age) as TotalAge from Person
 group by City, GenderId order by City
 
---näitab, et mitu rida on selles tabelis 
+--näitab mitu rida on selles tabelis
 select count(*) from Person
 
---näitab tulemust, etmitu inimest on GenderId väärtusega 2 konkreetses linnas
--- arvutab vanuse kokku konkreetses linnass
-select city, GenderId, SUM(age) as totalage, COUNT(id) as [Total Person(s)]
+--näitab tulemust mitu inimest on GenderId väärtusega 2 konkreetses linnas
+--arvutab vanuse kokku konkreetses linnas
+select GenderId, City, sum(Age) as TotalAge, count(Id) as [Total Person(s)]
 from Person
 where GenderId = '2'
-group by GenderId, city
+group by GenderId, City
 
---näitab ära inimeste koondvanuse´, mis on üle 41 a ja
+--näitab ära inimeste koondvanuse mis on üle 41 a ja
 --kui palju neid igas linnas elab
---eristab soo järgi 
-select city, GenderId, SUM(age) as totalage, COUNT(id) as [Total Person(s)]
+--eristab soo järgi
+select GenderId, City, sum(Age) as TotalAge, count(Id) as [Total Person(s)]
 from Person
-group by GenderId, city having SUM(age) > 41
+group by GenderId, City having sum(Age) > 41
 
---loome tabelid emloyees ja department 
-
-
-
-CREATE TABLE employees
+--loome tabelid Employees ja Department
+create table Department
 (
-    Id INT NOT NULL PRIMARY KEY,
-    Name NVARCHAR(50),
-    Gender NVARCHAR(50),
-    Salary INT,
-    DepartmentId INT NULL
-);
+Id int not null primary key,
+DepartmentName nvarchar(50) null,
+Location nvarchar(50) null,
+DepartmentHead nvarchar(50) null
+)
 
---
-INSERT INTO employees (Id, Name, gender, salary, DepartmentID)
-VALUES
-(1, 'Tom', 'Male', 4000, 1),
-(2, 'Pam', 'Female', 3000, 3),
-(3, 'John', 'Male', 3500, 1),
-(4, 'Sam', 'Male', 4500, 2),
-(5, 'Todd', 'Male', 2800, 2),
-(6, 'Ben', 'Male', 7000, 1),
-(7, 'Sara', 'Female', 4800, 3),
-(8, 'Valarie', 'Female', 5500, 1),
-(9, 'James', 'Male', 6500, NULL),
-(10, 'Russell', 'Male', 8800, NULL),
+create table Employees
+(
+Id int not null primary key,
+Name nvarchar(50) null,
+Gender nvarchar(50) null,
+Salary nvarchar(50) null,
+DepartmentId int null
+)
 
+insert into Employees (Id, Name, Gender, Salary, DepartmentId)
+values (1, 'Tom', 'Male', '4000', 1),
+(2, 'Pam', 'Female', '3000', 3),
+(3, 'John', 'Male', '3500', 1),
+(4, 'Sam', 'Male', '4500', 2),
+(5, 'Todd', 'Male', '2800', 2),
+(6, 'Ben', 'Male', '7000', 1),
+(7, 'Sara', 'Female', '4800', 3),
+(8, 'Valarie', 'Female', '5500', 1),
+(9, 'James', 'Male', '6500', null),
+(10, 'Rusell', 'Male', '8800', null)
 
-INSERT INTO department (id, departmentname, location, departmenthead)
-VALUES
-(1, 'IT', 'London', 'Rick'),
+insert into Department(Id, DepartmentName, Location, DepartmentHead)
+values (1, 'IT', 'London', 'Rick'),
 (2, 'Payroll', 'Delhi', 'Ron'),
 (3, 'HR', 'New York', 'Christie'),
-(4, 'Other Department', 'Sydney', 'Cinderella');
+(4, 'Other Department', 'Sydney', 'Cindrella')
 
---
-select name, Gender, Salary, departmentname
+select Name, Gender, Salary, DepartmentName
+from Employees
+left join Department
+on Employees.DepartmentId = Department.Id
+
+--arvutame kõikide palgad kokku
+select sum(cast(Salary as int)) from Employees
+
+--miinimum palga saaja
+select min(cast(Salary as int)) from Employees
+
+--teeme left join päringu
+select Location, sum(cast(Salary as int)) as TotalSalary
+from Employees
+left join Department
+on Employees.DepartmentId = Department.Id
+group by Location --ühe kuu palgafond linnade lõikes
+
+--teeme veeru nimega City Employees tabelisse
+--nvarchar 30
+alter table Employees
+add City nvarchar(30)
+
+select * from Employees
+
+--peale selecti tulevad veergude nimed
+select City, Gender, sum(cast(Salary as int)) as TotalSalary
+--tabelist nimega Employees ja mis on grupitatud City ja Gender järgi
+from Employees group by City, Gender
+
+--oleks vaja et linnad oleksid tähestikulises järjekorras
+select City, Gender, sum(cast(Salary as int)) as TotalSalary
+from Employees group by City, Gender
+order by City
+--order by järjestab linnad tähestikuliselt
+--aga kui on nullid, siis need tulevad kõige ette
+
+--loeb ära, mitu rida on tabelis Employees
+--* asemele võib panna ka veeru nime
+-- aga siis loeb ainult selle veeru väärtused, mis ei ole nullid
+select COUNT(*) from Employees
+
+--mitu töötajat on soo ja linna kaupa
+select City, Gender, sum(cast(Salary as int)) as Totalsalary, count(Id) as TotalEmployees
+from Employees group by City, Gender
+
+--kuvab ainult kõik mehed linnade kaupa
+select City, Gender, sum(cast(Salary as int)) as Totalsalary,
+count(Id) as TotalEmployees
+from Employees
+where Gender = 'Male'
+group by City, Gender
+
+--sama tulemus, aga kasutage having klauslit
+select City, Gender, sum(cast(Salary as int)) as Totalsalary,
+count(Id) as TotalEmployees
+from Employees
+group by City, Gender
+having Gender = 'Male'
+
+--näitab meile ainult need töötajad kellel on palga summa üle 4000
+select * from Employees
+where sum(cast(salary as int)) > 4000
+
+select City, sum(cast(Salary as int)) as Totalsalary, Name,
+count(Id) as TotalEmployees
+from Employees
+group by Salary, City, Name
+having sum(cast(Salary as int)) > 4000
+
+--loo´me tabeli, milles hakatakse automaatselt nummerdama Id-d
+create table Test1
+(
+Id int identity(1,1) primary key,
+Value nvarchar(30)
+)
+
+insert into Test1 values('X')
+select * from Test1
+
+-- kustutame veeru nimega City Employees tabelist 
+alter table employees 
+drop column city 
+-- inner join
+-- kuvab neid, kellel on Departmentname all olemas väärtus 
+select Name, Gender, Salary, departmentname 
 from employees
-left join department
-on employees.departmentId = department.Id
+inner join Department
+on employees.DepartmentId = Department.Id
 
---arvutame kõikide palgad kokku 
-select sum(cast(salary as int)) from employees
---min palga saaja
-select min(cast(salary as int)) from employees
+-- left join 
+-- kuvab kõik read employees tabelist 
+-- agadepartmentname näitab ainult siis, kui on olemas 
+select Name, Gender, Salary, departmentname 
+from employees
+left join Department
+on employees.DepartmentId = Department.Id
+
+
+
+--right join
+-- kuvab kõik read department tabelist
+-- aga name näitab ainult siis, kui on olemas väärtus deparmentId-s, mis on sama 
+-- department tabeli id-ga
+select Name, Gender, Salary, departmentname 
+from employees
+right join  Department
+on employees.DepartmentId = Department.Id
+
+--full outer join
+select Name, Gender, Salary, departmentname 
+from employees
+full join Department
+on employees.DepartmentId = Department.Id
+
+-- cross join
+-- luvab kõik read mõlemast tabelist, aga ei võta aluseksmingit veergu,
+-- vaid lihtsalt kombineerib kõik read omavahel
+--kasutatakse harva, aga kui on vaja kombineerida kõiki 
+-- võimalikke kombinatsioone kahe tabeli vahel, siis võib kasutada cross joini
+select Name, Gender, Salary, departmentname 
+from employees
+cross join Department
+
+
+--päringi sisu 
+select columnlist
+from leftTable
+jointype RightTable 
+on joincondition
+
+select Name, Gender, Salary, departmentname 
+from employees
+inner join Department
+on employees.DepartmentId = Department.Id
+-- kuidas kuvada ainuilt need isikud, kellel on departmentname null 
+select Name, Gender, Salary, departmentname 
+from employees
+left join Department
+on employees.DepartmentId = Department.Id
+where employees.DepartmentId is null
+
+--teine variant 
+select Name, Gender, Salary, departmentname 
+from employees
+left join Department
+on employees.DepartmentId = Department.Id
+where Department.Id is null
+
+--kuidas saame department tabelis oleva rea, kus on NULL
+select Name, Gender, Salary, departmentname 
+from employees
+right join  Department
+on employees.DepartmentId = Department.Id
+where employees.DepartmentId is null 
+
+--full join
+--kus on vaja kuvada kõik read mõlemast tabelist,
+--millel ei ole vastet 
+select Name, Gender, Salary, departmentname 
+from employees
+right join  Department
+on employees.DepartmentId = Department.Id
+where employees.DepartmentId is null
+or Department.Id is null
+
+--tabeli nimetuse muutmine koodiga 
+sp_rename 'employees1', 'employees'
+
+--kasutame employees tabeli asemel lühendit E ja M
+-- aga enne seda lisame uue veeru nimega ManagerId ja see on int
+alter table employees
+add ManagerId int 
+
+--antud juhul E on emloyees tabeli lühend ja M
+-- on samuti employees tabeli lühend, aga me kasutame 
+-- seda, et näidata, et see on manageri tabel
+select E.name as employee, M.Name as manager
+from employees E
+left join employees M
+on E.ManagerId = M.Id
+
+-- inner join ja kasutame lühendeid 
+select E.name as employee, M.Name as manager
+from employees E
+inner join employees M
+on E.ManagerId = M.Id
+
+--cross join ja kasutame lühendeid 
+select e.name as employee, M.name as manager 
+from employees E
+cross join employees M
+
+select FirstName, LastName, Phone, AddressID, AddressType
+from SalesLT.CustomerAddress
+left join SalesLT.Customer
+on SalesLT.CustomerAddress.CustomerID = SalesLT.Customer.CustomerID
+
+-- teha päring, kus kasutate productmodelit ja product tabelit,
+-- et näha, millised tooted on millise mudeliga seotud
