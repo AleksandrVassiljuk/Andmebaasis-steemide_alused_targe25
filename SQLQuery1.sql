@@ -720,8 +720,34 @@ sp_depends Employees
 -- Siin on pildil pooleli j‰‰nud protseduuri t‰ielik kuju:
 CREATE PROC spGetNameById
     @Id INT,
-    @Name NVARCHAR(100) OUTPUT
+    @Name NVARCHAR(30) OUTPUT
 AS
 BEGIN
     SELECT @Name = Name FROM Employees WHERE Id = @Id
 END
+
+--tahame n‰ha kogu tabelite ridade arvu 
+--count kasutada 
+create proc spTotalCount2
+@TotalCount int output
+as begin
+    select @TotalCount = count(Id) from Employees
+end
+--saame teada, et mitu rida on tabelis
+declare @TotalEmployees int
+execute spTotalCount2 @TotalCount output
+--mis id all on keegi nime j‰rgi
+create proc spGetIdByName1
+@Id int,
+@FirstName nvarchar(30) output
+as begin
+    select @FirstName = FirstName from Employees where @Id = Id
+end
+--annab tulemuse, kus id 1 real on keegi koos nimega
+declare @FirstName nvarchar(30)
+execute spGetIdByName1 @Id = 1, @FirstName output
+print 'Name of the employee = ' + @FirstName
+--sp-s on viga, sest @Id on parameeter,
+--mis on mıeldud selleks, et me saaksime sisestada id-d
+--ja saada nime, aga sp-s on loogika viga, sest see
+--¸ritab m‰‰rata @Id v‰‰rtuseks Id veeru v‰‰rtust, mis on vale
