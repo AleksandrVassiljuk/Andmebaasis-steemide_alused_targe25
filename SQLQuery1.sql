@@ -80,7 +80,7 @@ add constraint CK_Person_Age check (Age > 0 and Age < 155)
 
 --kui sa tead veergude järjekorda peast
 --siis ei pea neid sisestama
-insert into Person
+insert into Person 
 values (10, 'Green Arrow', 'g@g.com', 2, 154)
 
 --constrainti kustutamine
@@ -277,14 +277,14 @@ select City, Gender, sum(cast(Salary as int)) as Totalsalary, count(Id) as Total
 from Employees group by City, Gender
 
 --kuvab ainult kõik mehed linnade kaupa
-select City, Gender, sum(cast(Salary as int)) as Totalsalary,
+select City, Gender, sum(cast(Salary as int)) as Totalsalary, 
 count(Id) as TotalEmployees
 from Employees
 where Gender = 'Male'
 group by City, Gender
 
 --sama tulemus, aga kasutage having klauslit
-select City, Gender, sum(cast(Salary as int)) as Totalsalary,
+select City, Gender, sum(cast(Salary as int)) as Totalsalary, 
 count(Id) as TotalEmployees
 from Employees
 group by City, Gender
@@ -310,123 +310,418 @@ Value nvarchar(30)
 insert into Test1 values('X')
 select * from Test1
 
--- kustutame veeru nimega City Employees tabelist 
-alter table employees 
-drop column city 
--- inner join
--- kuvab neid, kellel on Departmentname all olemas väärtus 
-select Name, Gender, Salary, departmentname 
-from employees
+--kustutame veeru nimega City Employees tabelist
+alter table Employees
+drop column City
+
+--inner join
+--kuvab neid kellel on DepartmentName all olemas väärtus
+select Name, Gender, Salary, DepartmentName
+from Employees
 inner join Department
-on employees.DepartmentId = Department.Id
+on Employees.DepartmentId = Department.Id
 
--- left join 
--- kuvab kõik read employees tabelist 
--- agadepartmentname näitab ainult siis, kui on olemas 
-select Name, Gender, Salary, departmentname 
-from employees
+--left join 
+-- kuvab kõik read Employees tabelist,
+--aga DepartmentName näitab ainult siis, kui on olemas
+-- kui DepartmentId on null, siis DepartmentName näitab nulli
+select Name, Gender, Salary, DepartmentName
+from Employees
 left join Department
-on employees.DepartmentId = Department.Id
-
-
+on Employees.DepartmentId = Department.Id
 
 --right join
--- kuvab kõik read department tabelist
--- aga name näitab ainult siis, kui on olemas väärtus deparmentId-s, mis on sama 
--- department tabeli id-ga
-select Name, Gender, Salary, departmentname 
-from employees
-right join  Department
-on employees.DepartmentId = Department.Id
+--kuvab kõik read Department tabelist
+--aga Name näitab ainult siis, kui on olemas väärtus DepartmentId, mis on sama,
+--Department tabeli Id-ga
+select Name, Gender, Salary, DepartmentName
+from Employees
+right join Department
+on Employees.DepartmentId = Department.Id
 
---full outer join
-select Name, Gender, Salary, departmentname 
-from employees
-full join Department
-on employees.DepartmentId = Department.Id
+--full outer join ja full join on sama asi
+--kuvab kõik read mõlemast tabelist,
+--aga kui ei ole vastet, siis näitab nulli
+select Name, Gender, Salary, DepartmentName
+from Employees
+full outer join Department
+on Employees.DepartmentId = Department.Id
 
--- cross join
--- luvab kõik read mõlemast tabelist, aga ei võta aluseksmingit veergu,
--- vaid lihtsalt kombineerib kõik read omavahel
---kasutatakse harva, aga kui on vaja kombineerida kõiki 
--- võimalikke kombinatsioone kahe tabeli vahel, siis võib kasutada cross joini
-select Name, Gender, Salary, departmentname 
-from employees
+--cross join
+--kuvab kõik read mõlemast tabelist, aga ei võta aluseks mingit veergu,
+--vaid lihtsalt kombineerib kõik read omavahel
+--kasutatakse harva, aga kui on vaja kombineerida kõiki
+--võimalikke kombinatsioone kahe tabeli vahel, siis võib kasutada cross joini
+select Name, Gender, Salary, DepartmentName
+from Employees
 cross join Department
 
+--päringu sisu
+select ColumnList
+from LeftTable
+joinType RightTable
+on JoinCondition
 
---päringi sisu 
-select columnlist
-from leftTable
-jointype RightTable 
-on joincondition
-
-select Name, Gender, Salary, departmentname 
-from employees
+select Name, Gender, Salary, DepartmentName
+from Employees
 inner join Department
-on employees.DepartmentId = Department.Id
--- kuidas kuvada ainuilt need isikud, kellel on departmentname null 
-select Name, Gender, Salary, departmentname 
-from employees
-left join Department
-on employees.DepartmentId = Department.Id
-where employees.DepartmentId is null
+on DepartmentId = Employees.DepartmentId
 
---teine variant 
-select Name, Gender, Salary, departmentname 
-from employees
+--kuidas kuvada ainult need isikud, kellel on DepartmentName NULL
+select Name, Gender, Salary, DepartmentName
+from Employees
 left join Department
-on employees.DepartmentId = Department.Id
+on Employees.DepartmentId = Department.Id
+where Employees.DepartmentId is null
+
+--teine variant
+select Name, Gender, Salary, DepartmentName
+from Employees
+left join Department
+on Employees.DepartmentId = Department.Id
 where Department.Id is null
 
 --kuidas saame department tabelis oleva rea, kus on NULL
-select Name, Gender, Salary, departmentname 
-from employees
-right join  Department
-on employees.DepartmentId = Department.Id
-where employees.DepartmentId is null 
+select Name, Gender, Salary, DepartmentName
+from Employees
+right join Department
+on Employees.DepartmentId = Department.Id
+where Employees.DepartmentId is null
 
 --full join
 --kus on vaja kuvada kõik read mõlemast tabelist,
---millel ei ole vastet 
-select Name, Gender, Salary, departmentname 
-from employees
-right join  Department
-on employees.DepartmentId = Department.Id
-where employees.DepartmentId is null
+--millel ei ole vastet
+select Name, Gender, Salary, DepartmentName
+from Employees
+full join Department
+on Employees.DepartmentId = Department.Id
+where Employees.DepartmentId is null
 or Department.Id is null
 
---tabeli nimetuse muutmine koodiga 
-sp_rename 'employees1', 'employees'
+--tabeli nimetuse muutmine koodiga
+sp_rename 'Employees1', 'Employees'
 
---kasutame employees tabeli asemel lühendit E ja M
--- aga enne seda lisame uue veeru nimega ManagerId ja see on int
-alter table employees
-add ManagerId int 
+--kasutame Employees tabeli asemel lühendit E ja M
+--aga enne seda lisame uue veeru nimega ManagerId ja see on int
+alter table Employees
+add ManagerId int
 
---antud juhul E on emloyees tabeli lühend ja M
--- on samuti employees tabeli lühend, aga me kasutame 
--- seda, et näidata, et see on manageri tabel
-select E.name as employee, M.Name as manager
-from employees E
-left join employees M
+--antud juhul E on Employees tabeli lühend ja M
+--on samuti Employees tabeli lühend, aga me kasutame
+--seda, et näidata, et see on manageri tabel
+select E.Name as Employee, M.Name as Manager
+from Employees E
+left join Employees M
 on E.ManagerId = M.Id
 
--- inner join ja kasutame lühendeid 
-select E.name as employee, M.Name as manager
-from employees E
-inner join employees M
+--inner join ja kasutame lühendeid
+select E.Name as Employee, M.Name as Manager
+from Employees E
+inner join Employees M
 on E.ManagerId = M.Id
 
---cross join ja kasutame lühendeid 
-select e.name as employee, M.name as manager 
-from employees E
-cross join employees M
+--cross join ja kasutame lühendeid
+select E.Name as Employee, M.Name as Manager
+from Employees E
+cross join Employees M
 
 select FirstName, LastName, Phone, AddressID, AddressType
 from SalesLT.CustomerAddress
 left join SalesLT.Customer
 on SalesLT.CustomerAddress.CustomerID = SalesLT.Customer.CustomerID
 
--- teha päring, kus kasutate productmodelit ja product tabelit,
--- et näha, millised tooted on millise mudeliga seotud
+--teha päring, kus kasutate ProductModelit ja Product tabelit
+--et näha, millised tooted on millise mudeliga seotud
+select PM.Name as ProductModel, P.Name as Product
+from SalesLT.Product P
+left join SalesLT.ProductModel PM
+on PM.ProductModelId = P.ProductModelId
+
+
+---JOIN päringud
+---CROSS JOIN
+---Loob ühendused kahest tabelist. Employee tabelis on kümme rida ja Departments tabelis neli rida.
+---See tingimus tekitab päringu, mis kuvab 40 rida. Sellel JOIN-l ei tohiks olla ON tingimust.
+select Name, Gender, Salary, DepartmentName
+FROM dbo.Employees
+CROSS JOIN dbo.Department
+
+---JOIN VÕI INNER JOIN
+---INNER JOIN tagastab ainult kahes tabelis olevate ridade tabelid. Mitte kattuvad read on eemaldatud.
+select Name, Gender, Salary, DepartmentName
+from dbo.Employees
+INNER JOIN dbo.Department
+ON dbo.Employees.DepartmentId = dbo.Department.Id
+
+---LEFT VÕI LEFT OUTER JOIN
+---OUTER märksõna on vabatahtlik
+Select Name, Gender, Salary, DepartmentName
+from dbo.Employees
+LEFT OUTER JOIN dbo.Department
+ON dbo.Employees.DepartmentId = dbo.Department.Id
+
+---RIGHT JOIN või RIGHT OUTER JOIN
+select Name, Gender, Salary, DepartmentName
+from dbo.Employees
+RIGHT JOIN dbo.Department
+ON dbo.Employees.DepartmentId = dbo.Department.Id
+
+---FULL JOIN või FULL OUTER JOIN
+select Name, Gender, Salary, DepartmentName
+from dbo.Employees
+FULL JOIN dbo.Department
+ON dbo.Employees.DepartmentId = dbo.Department.Id
+
+---CROSS JOIN: tagastab kõik omavahel olevad read
+--- JOIN: Tagastab kattuvad read ja kõik mitte-kattuvad read vasakust tabelist
+---RIGHT JOIN: Tagastab kõik kattuvad read ja kõik mitte-kaatuvad read paremast tabelist
+---FULL JOIN: Tagastab vasakust ja paremast tabelist ja kõik mitte kattuvad read
+
+---Keerulisemad JOIN-d
+Select Name, Gender, Salary, DepartmentName
+from dbo.Employees E
+LEFT JOIN dbo.Department D
+ON E.DepartmentId = D.Id
+
+---Kuidas saada andmeid mitte-kattuvatelt ridadelt paremast tabelist.
+Select Name, Gender, Salary, DepartmentName
+from dbo.Employees E
+RIGHT JOIN dbo.Department D
+ON E.DepartmentId = D.Id
+WHERE E.DepartmentId IS NULL
+
+---Kuidas saada mõlemast tabelist ainult mitte-kattuvad read. 
+Select Name, Gender, Salary, DepartmentName
+from dbo.Employees E
+FULL JOIN dbo.Department D
+ON e.DepartmentId = D.Id
+WHERE E.DepartmentId IS NULL
+OR D.Id IS NULL
+
+---SELF JOIN
+---Tabeli iseendaga ühendamist nimetatakse SELF JOIN-ks. 
+Select E.Name as Employee, M.Name as Manager
+from dbo.Employees E
+LEFT JOIN dbo.Employees M
+ON E.ManagerId = M.Id
+
+---INNER Self ja CROSS self koodinäide
+Select E.Name as Employee, M.Name as Manager
+from dbo.Employees E
+INNER JOIN dbo.Employees M
+ON E.ManagerId = M.Id
+
+Select E.Name as Employee, M.Name as Manager
+from dbo.Employees E
+CROSS JOIN dbo.Employees M
+
+--
+select isnull('Sinu Nimi', 'No Manager') as Manager
+
+select COALESCE(null, 'No Manager') as Manager
+
+--neil kellel ei ole ülemust, siis paneb neile No Manager teksti
+Select E.Name as Employee, isnull(M.Name, 'No Manager') as Manager
+from Employees E
+left join Employees M
+on E.ManagerId = M.Id
+
+--kui Expression on õige, siis paneb väärtuse, mida soovid või
+--vastasel juhul paneb No Manager teksti
+--case when Expression Then '' else '' end
+
+--teeme päringu, kus kasutame case-i
+--tuleb kasutada ka left join
+Select E.Name as Employee, case when M.Name is null then 'No Manager'
+else M.Name end as Manager
+from Employees E
+left join Employees M
+on E.ManagerId = M.Id
+
+--lisame tabelisse uued veerud
+alter table employees
+add MiddleName nvarchar(30)
+alter table employees
+add LastName nvarchar(30)
+
+--muudame veeru nime koodiga
+sp_rename 'Employees.MiddleName', 'firstname'
+select * from Employees
+
+--
+UPDATE Employees
+SET MiddleName = 'Nick', LastName = 'Jones'
+WHERE Id = 1
+UPDATE Employees
+SET LastName = 'Anderson'
+WHERE Id = 2
+UPDATE Employees
+SET LastName = 'Smith'
+WHERE Id = 4
+UPDATE Employees
+SET FirstName = NULL, Middlename = 'Todd', LastName = 'Someone'
+WHERE Id = 5
+UPDATE Employees
+SET MiddleName = 'Ten', LastName = 'Sven'
+WHERE Id = 6
+UPDATE Employees
+SET LastName = 'Connor'
+WHERE Id = 7
+UPDATE Employees
+SET MiddleName = 'Balerine'
+WHERE Id = 8
+UPDATE Employees
+SET MiddleName = '007', LastName = 'Bond'
+WHERE Id = 9
+UPDATE Employees
+SET FirstName = NULL, LastName = 'Crowe'
+WHERE Id = 10
+
+--igast reast võtab esimesena mitte nulli väärtuse ja paneb selle Name veergu
+--kasutada coalsece
+SELECT Id, COALESCE(FirstName, MiddleName, LastName) As Name
+from Employees
+
+create table IndianCustomers
+(
+Id int identity(1,1),
+Name nvarchar(25),
+Email nvarchar(25)
+)
+
+create table UKCustomers
+(
+Id int identity(1,1),
+Name nvarchar(25),
+Email nvarchar(25)
+)
+
+insert into IndianCustomers (Name, Email)
+values ('Raj', 'R@R.com'),
+('Sam', 'S@S.com')
+
+insert into UKCustomers (Name, Email)
+values ('Ben', 'B@B.com'),
+('Sam', 'S@S.com')
+
+SELECT * from IndianCustomers
+SELECT * from UKCustomers
+
+--kasutate union all
+--kahe tabeli andmete vaatamiseks
+SELECT Name, Email FROM IndianCustomers
+UNION ALL
+SELECT Name, Email FROM UKCustomers
+
+--korduvate väärtuste eemaldamiseks kasutame unionit
+select ID, name, email from IndianCustomers
+union
+select ID, name, email from UKCustomers
+
+--kuias tulemust sorteerida nime järgi 
+--kasutada union all-in 
+select ID, name, email from IndianCustomers
+union all 
+select ID, name, email from UKCustomers
+order by Name 
+
+--stored procedure
+--salvestatud protseduurid on sql-i koodid, mis on salvest
+--salvestatud andmebaasis ja mida saab käivitda,
+--et teha mingi kindel töö ära 
+create procedure spGetEmployees 
+as begin 
+select firstname, Gender from employees
+end 
+
+-- nüüd saame kasutada spGetEmployees-i
+spGetEmployees 
+exec spGetEmployees 
+execute spGetEmployees 
+
+--
+CREATE PROC spGetEmployeesByGenderAndDepartment
+    @Gender NVARCHAR(10),
+    @DepartmentId INT
+AS 
+BEGIN
+    SELECT FirstName, Gender, DepartmentId 
+    FROM Employees
+    WHERE Gender = @Gender AND DepartmentId = @DepartmentId
+end 
+
+--miks saab veateate
+spGetEmployeesByGenderAndDepartment
+-- õige variant 
+ exec spGetEmployeesByGenderAndDepartment 'female', 1 
+ --kuidas minna sp järjekorrast mööda parameetrite sisestamisel 
+ spGetEmployeesByGenderAndDepartment @departmentId = 1, @gender = 'male'
+
+ sp_helptext spGetEmployeesByGenderAndDepartment
+ --muudame sp-d ja võti peale, et keegi teine 
+ --peale teie ei saaks seda muuta 
+ ALTER PROCEDURE spGetEmployeesByGenderAndDepartment
+    @Gender NVARCHAR(10),
+    @DepartmentId INT
+WITH ENCRYPTION -- paneb võtme ära 
+AS
+BEGIN
+    SELECT Name, Gender, DepartmentId  FROM Employees
+    WHERE Gender = @Gender AND DepartmentId = @DepartmentId
+END
+GO
+
+--
+CREATE PROC spGetEmployeeCountByGender
+    @Gender NVARCHAR(20),
+--uurige välja, mis on output parameeter ja kuidas seda kasutada 
+--sees tehtud arvutuse tulemuse ja kasutada seda väljaspool protseduuri
+@employeecount int output
+as begin
+ select @employeecount = COUNT(id) from employees
+ where Gender = @gender 
+ end 
+ 
+--annab tulemuse, kus loendab ära nõuetele vastavad read
+--prindib tulemuse, mis on parameetris @EmployeeCount
+	declare @TotalCount int
+	exec spGetEmployeeCountByGender 'Male', @TotalCount out
+	if (@TotalCount = 0)
+	   print '@totalcount is null'
+	 else
+	 print '@totalcount is not null'
+	print @totalcount 
+
+--näitab ära, et mitu rida vastab nõuetele 
+declare @totalcount int 
+execute spGetEmployeeCountByGender
+@employeecount = @TotalCount out, @Gender = 'Male'
+print @totalcount 
+
+--sp sisu vaatamine 
+sp_help spgetemployeecountbygender 
+--tabeli info 
+sp_help employees 
+
+--vaatame, millest sõltub see sp 
+sp_depends spGetEmployeeCountByGenderS
+
+-- Kuvab protseduuri tekstilise koodi (eeldusel, et pole krüpteeritud)
+sp_helptext spGetEmployeeCountByGender
+
+--vaatame, millest sõltub see sp
+sp_depends spGetEmployeeCountByGender
+
+--vaatame tabelit sp_depends-ga
+sp_depends Employees
+
+---
+
+-- Siin on pildil pooleli jäänud protseduuri täielik kuju:
+CREATE PROC spGetNameById
+    @Id INT,
+    @Name NVARCHAR(100) OUTPUT
+AS
+BEGIN
+    SELECT @Name = Name FROM Employees WHERE Id = @Id
+END
